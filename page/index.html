@@ -1,0 +1,251 @@
+<title>Winter Arc</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one column on pure black; the countdown is the hero, a 93-cell day grid below,
+   goals as a ledger, the family "why" framed in white. Strict black and white by choice. */
+:root {
+  --bg: #000000;
+  --surface: #000000;
+  --line: #ffffff;
+  --fg: #ffffff;
+  --muted: #ffffff;
+  --ice: #ffffff;
+  --green: #ffffff;
+  --gold: #ffffff;
+  --red: #ffffff;
+  --ember: #ffffff;
+  --ember-bg: #000000;
+  --cell-off: #000000;
+  --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.5; }
+.wrap {
+  max-width: 760px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 64px;
+  display: flex; flex-direction: column; gap: 48px;
+}
+.label { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+h2 { font-family: var(--display); font-weight: 800; font-size: 28px; letter-spacing: .02em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+section { display: flex; flex-direction: column; gap: 16px; }
+
+/* Hero */
+.hero { gap: 8px; }
+.hero .top { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.big { font-family: var(--display); font-weight: 900; font-size: clamp(96px, 30vw, 200px); line-height: .85; letter-spacing: -.01em; color: var(--fg); font-variant-numeric: tabular-nums; }
+.big small { display: block; font-size: .22em; font-weight: 800; letter-spacing: .06em; color: var(--ice); margin-top: 10px; text-transform: uppercase; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); margin-top: 24px; }
+.stat { background: var(--bg); padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.stat b { font-family: var(--mono); font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.bar { height: 6px; background: var(--bg); box-shadow: inset 0 0 0 1px var(--fg); margin-top: 16px; }
+.bar i { display: block; height: 100%; background: var(--fg); width: 0; }
+
+/* Day grid */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(18px, 1fr)); gap: 4px; }
+.cell { aspect-ratio: 1; max-width: 100%; background: var(--cell-off); }
+.cell { box-shadow: inset 0 0 0 1px var(--fg); }
+.cell.gone { background: var(--fg); }
+.cell.today { background: var(--bg); box-shadow: inset 0 0 0 1px var(--fg); outline: 2px solid var(--fg); outline-offset: 2px; }
+.cell.last { background: repeating-linear-gradient(45deg, var(--fg) 0 2px, var(--bg) 2px 5px); }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--fg); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; display: inline-block; }
+
+/* Goals ledger */
+.goals { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+.goal { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 16px; padding-block: 16px; border-bottom: 1px solid var(--line); }
+.goal .what { font-size: 20px; font-weight: 600; }
+.goal .label { color: var(--c); }
+.goal .from-to { font-family: var(--mono); color: var(--c); font-size: 15px; margin-top: 2px; }
+
+/* Why */
+.why { background: var(--ember-bg); border: 2px solid var(--ember); padding: 28px 24px; gap: 8px; }
+.why p { color: var(--ember); }
+.why .label { color: var(--ember); }
+.why p { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(30px, 7vw, 44px); line-height: 1.05; text-transform: uppercase; text-wrap: balance; }
+
+/* Reminders */
+.notes { display: flex; flex-direction: column; gap: 12px; }
+.note { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.note header { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; color: var(--muted); font-family: var(--mono); }
+.note .t { font-weight: 600; font-size: 15px; }
+.note .t { color: var(--c); }
+.note { border-color: var(--c); }
+.note .m { white-space: pre-line; font-size: 14px; color: var(--fg); overflow-wrap: anywhere; }
+.hint { font-size: 14px; color: var(--fg); margin: 0; max-width: 62ch; }
+@media (max-width: 480px) {
+  .goal { grid-template-columns: 1fr; gap: 4px; }
+  .stat b { font-size: 18px; }
+}
+@media (prefers-reduced-motion: no-preference) { .bar i { transition: width .6s ease-out; } }
+</style>
+
+<div class="wrap">
+  <section class="hero">
+    <div class="top">
+      <span class="label">Winter Arc · 30 Oct 2026 → 30 Jan 2027</span>
+      <span class="label" id="clock">Casablanca</span>
+    </div>
+    <div class="big"><span id="daysLeft">93</span><small>days left</small></div>
+    <div class="stats">
+      <div class="stat"><span class="label">Day</span><b id="dayN" style="color:var(--ice)">1 / 93</b></div>
+      <div class="stat"><span class="label">Time gone</span><b id="pct" style="color:var(--red)">0.0%</b></div>
+      <div class="stat"><span class="label">Until deadline</span><b id="hms" style="color:var(--gold)">00:00:00</b></div>
+    </div>
+    <div class="bar" aria-hidden="true"><i id="barFill"></i></div>
+  </section>
+
+  <section>
+    <h2>Every day, counted</h2>
+    <div class="grid" id="grid" role="img" aria-label="93 days of the Winter Arc"></div>
+    <div class="legend">
+      <span><i style="background:var(--fg)"></i>Gone</span>
+      <span><i style="background:var(--bg);outline:2px solid var(--fg);outline-offset:1px"></i>Today</span>
+      <span><i style="box-shadow:inset 0 0 0 1px var(--fg)"></i>Still yours</span>
+      <span><i style="background:repeating-linear-gradient(45deg, var(--fg) 0 2px, var(--bg) 2px 5px)"></i>Deadline</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>The three targets</h2>
+    <div class="goals">
+      <div class="goal" style="--c:var(--ice)"><span class="label">Body</span><div><div class="what">Gain the weight</div><div class="from-to">72 kg → 83 kg · 1.81 m</div></div></div>
+      <div class="goal" style="--c:var(--green)"><span class="label">Agency</span><div><div class="what">Income covers every living cost</div><div class="from-to">Rent, food, bills: paid by the agency</div></div></div>
+      <div class="goal" style="--c:var(--gold)"><span class="label">Trading</span><div><div class="what">200k funded capital</div><div class="from-to">+ 3–4% return by 30 Jan</div></div></div>
+    </div>
+  </section>
+
+  <section class="why">
+    <span class="label">Why</span>
+    <p>Family. Every rep, every client, every trade is for them.</p>
+  </section>
+
+  <section>
+    <h2>Today's reminders</h2>
+    <p class="hint">These are the exact pushes your phone gets today. The wording rotates every day, and the morning one always repeats the goals and the why, so a missed day never goes unnoticed.</p>
+    <div class="notes" id="notes"></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  // Morocco is UTC+1 all year except Ramadan, which falls after the deadline.
+  var OFFSET = 60 * 60 * 1000;
+  var START = Date.UTC(2026, 9, 30, 0, 0, 0) - OFFSET;
+  var END = Date.UTC(2027, 0, 30, 23, 59, 59) - OFFSET;
+  var TOTAL = 93;
+  var DAY = 86400000;
+
+  var GOALS = "BODY: 72kg -> 83kg\nMONEY: agency income covers every living cost\nTRADING: 200k funded capital + 3-4% return";
+  var WHY = "WHY: your family. Every rep, every client, every trade is for them.";
+  var MORNING = [
+    "Nobody is coming to do this for you. Write today's plan before you touch your phone again.",
+    "Eat like it's your job. Work like rent is due. Trade like the account is your family's.",
+    "Comfort is the enemy. Pick the three things that move the goals and do them first.",
+    "Yesterday is gone, good or bad. Today gets judged on its own. Make it count.",
+    "Motivation is gone by noon. Discipline is what's left. Plan the day now.",
+    "Every meal is a step toward 83kg. Every call is a step toward a paying agency. Start walking.",
+    "You said you'd do this. Prove it before breakfast: write the plan, then execute it.",
+    "Your family doesn't need your excuses. They need you to finish. Plan the day.",
+    "No zero days. One workout, one client move, one disciplined trading session. Minimum.",
+    "The deadline doesn't move. Your effort is the only thing you control. Plan it.",
+    "Soft days make a hard life. Hard days make an easy one. Choose now.",
+    "Wake up, eat big, work hard, trade clean. Write down exactly how."
+  ];
+  var EVENING = [
+    "Check-in. Did you eat enough today? If not, fix it before you sleep.",
+    "Half the day is gone. Did you do the hard thing yet, or are you still dodging it?",
+    "Check-in. One client action today: done or not? If not, do it in the next hour.",
+    "Be honest. Would your family be proud of how you spent today so far?",
+    "Trading check: did you follow your rules, or did you gamble? No lies.",
+    "Still time to save the day. Pick the one task you've been avoiding and finish it.",
+    "Have you trained today? If not, the gym is still open. Go.",
+    "Check-in. Scrolling is stealing your goals. Put the phone down and work.",
+    "The day isn't over. Eat a real meal and finish one more thing for the agency.",
+    "You don't need to feel like it. You need to do it. What's left on today's plan?"
+  ];
+  var NIGHT = [
+    "Night review. What did you win today? What did you dodge? Write both down.",
+    "Lights out soon. Muscle grows in sleep. Eat your last meal and go to bed.",
+    "Review: food, work, trading. Score each one honestly out of 10.",
+    "Did today get you closer to the goals, or did you just stay busy? Answer it.",
+    "No screen marathons tonight. Plan tomorrow's first move, then sleep.",
+    "If today was weak, don't hide from it. Name the reason and fix it tomorrow.",
+    "Your family is the reason. Did today's version of you earn that? Review and rest.",
+    "Night review. One thing to keep doing, one thing to cut. Then sleep.",
+    "The work you did today compounds. So does the work you skipped. Review it.",
+    "Close the day like a professional. Review, plan tomorrow, sleep 8 hours."
+  ];
+
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function $(id) { return document.getElementById(id); }
+
+  function state(now) {
+    var dayIdx = Math.floor((now - START) / DAY); // 0-based
+    dayIdx = Math.max(0, Math.min(TOTAL - 1, dayIdx));
+    var pct = Math.max(0, Math.min(100, (now - START) / (END - START) * 100));
+    return { dayIdx: dayIdx, dayN: dayIdx + 1, left: TOTAL - dayIdx, pct: pct };
+  }
+
+  var grid = $("grid");
+  for (var i = 0; i < TOTAL; i++) {
+    var c = document.createElement("div");
+    c.className = "cell";
+    grid.appendChild(c);
+  }
+
+  function renderNotes(s) {
+    var status = "Day " + s.dayN + "/" + TOTAL + " · " + s.left + " days left · " + Math.round(s.pct) + "% of the time gone";
+    var i = s.dayIdx;
+    var notes = [
+      ["08:30", "WINTER ARC · " + s.left + " DAYS LEFT", MORNING[i % MORNING.length] + "\n\n" + GOALS + "\n\n" + WHY + "\n\n" + status, "var(--ice)"],
+      ["18:00", "18:00 CHECK-IN", EVENING[i % EVENING.length] + "\n\n" + status, "var(--gold)"],
+      ["22:30", "NIGHT REVIEW", NIGHT[i % NIGHT.length] + "\n\n" + status, "var(--ember)"]
+    ];
+    var box = $("notes");
+    box.textContent = "";
+    notes.forEach(function (n) {
+      var el = document.createElement("article");
+      el.className = "note"; el.style.setProperty("--c", n[3]);
+      var h = document.createElement("header");
+      h.innerHTML = "<span>ntfy · Winter Arc</span>";
+      var tm = document.createElement("span"); tm.textContent = n[0]; h.appendChild(tm);
+      var t = document.createElement("div"); t.className = "t"; t.textContent = n[1];
+      var m = document.createElement("div"); m.className = "m"; m.textContent = n[2];
+      el.appendChild(h); el.appendChild(t); el.appendChild(m);
+      box.appendChild(el);
+    });
+  }
+
+  var lastDay = -1;
+  function tick() {
+    var now = Date.now();
+    var s = state(now);
+    $("daysLeft").textContent = now > END ? 0 : s.left;
+    $("dayN").textContent = s.dayN + " / " + TOTAL;
+    $("pct").textContent = s.pct.toFixed(1) + "%";
+    $("barFill").style.width = s.pct + "%";
+    var rem = Math.max(0, END - now);
+    var d = Math.floor(rem / DAY), h = Math.floor(rem % DAY / 3600000), m = Math.floor(rem % 3600000 / 60000), sec = Math.floor(rem % 60000 / 1000);
+    $("hms").textContent = d + "d " + pad(h) + ":" + pad(m) + ":" + pad(sec);
+    var local = new Date(now + OFFSET);
+    $("clock").textContent = "Casablanca " + pad(local.getUTCHours()) + ":" + pad(local.getUTCMinutes());
+    if (s.dayIdx !== lastDay) {
+      lastDay = s.dayIdx;
+      var cells = grid.children;
+      for (var k = 0; k < cells.length; k++) {
+        cells[k].className = "cell" + (k < s.dayIdx ? " gone" : "") + (k === s.dayIdx ? " today" : "") + (k === TOTAL - 1 && k !== s.dayIdx ? " last" : "");
+      }
+      renderNotes(s);
+    }
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>

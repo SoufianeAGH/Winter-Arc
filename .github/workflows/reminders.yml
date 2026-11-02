@@ -1,0 +1,34 @@
+name: Winter Arc reminders
+
+on:
+  schedule:
+    # Times are UTC. Casablanca is UTC+1 for the whole arc.
+    - cron: "30 7 * * *"   # 08:30 morning plan
+    - cron: "0 17 * * *"   # 18:00 check-in
+    - cron: "30 21 * * *"  # 22:30 night review
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: "Which reminder to send now"
+        type: choice
+        options: [morning, evening, night]
+        default: morning
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Send reminder
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          SLOT: >-
+            ${{ github.event_name == 'workflow_dispatch' && inputs.slot
+            || github.event.schedule == '30 7 * * *' && 'morning'
+            || github.event.schedule == '0 17 * * *' && 'evening'
+            || 'night' }}
+        run: python send_reminder.py
